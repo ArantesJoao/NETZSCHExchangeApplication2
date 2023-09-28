@@ -8,7 +8,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/data');
+        const response = await fetch('http://localhost:3001/api/data/net');
         const data = await response.text();
         setOutput(data);
       } catch (error) {
@@ -25,7 +25,7 @@ function App() {
   const handleInputChange = async (e) => {
     setInput(e.target.value);
     try {
-      await fetch('http://localhost:3001/api/data', {
+      await fetch('http://localhost:3001/api/data/react', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
