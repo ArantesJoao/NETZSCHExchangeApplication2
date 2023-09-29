@@ -1,5 +1,7 @@
-const express = require('express');
 const cors = require('cors');
+const WebSocket = require('ws');
+const express = require('express');
+
 
 const app = express();
 const PORT = 3001;
@@ -23,6 +25,25 @@ app.post('/api/data/:source', (req, res) => {
   res.send('OK');
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+});
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    const parsedMessage = JSON.parse(message);
+    if (parsedMessage.source && parsedMessage.data) {
+      dataStore[parsedMessage.source] = parsedMessage.data;
+      wss.clients.forEach(client => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            source: parsedMessage.source,
+            data: parsedMessage.data
+          }));
+        }
+      });
+    }
+  });
 });

@@ -1,41 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 function App() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const ws = useRef(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/data/net');
-        const data = await response.text();
-        setOutput(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+    ws.current = new WebSocket('ws://localhost:3001');
+
+    ws.current.onopen = () => {
+      console.log("Connected to the WebSocket");
+    };
+
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.source === 'net') {
+        setOutput(message.data);
       }
     };
 
-    fetchData();
-
-    const interval = setInterval(fetchData, 1000);
-    return () => clearInterval(interval);
+    return () => {
+      ws.current.close();
+    };
   }, []);
 
-  const handleInputChange = async (e) => {
+  const handleInputChange = (e) => {
     setInput(e.target.value);
-    try {
-      await fetch('http://localhost:3001/api/data/react', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: e.target.value }),
-      });
-    } catch (error) {
-      console.error("Error sending data:", error);
-    }
+    const message = {
+      source: 'react',
+      data: e.target.value || " "  // ensure to send empty space if !value
+    };
+    console.log("Sending from React:", message);
+    ws.current.send(JSON.stringify(message));
   };
+
 
   return (
     <div className="App">
