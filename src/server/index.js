@@ -1,48 +1,47 @@
+const express = require('express');
 const cors = require('cors');
 const WebSocket = require('ws');
-const express = require('express');
 
-const app = express();
 const PORT = 3001;
+const app = express();
+let dataStore = { react: "", net: "" };
 
-let dataStore = {
-  react: "",
-  net: ""
-};
-
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Routes
 app.get('/api/data/:source', (req, res) => {
-  const source = req.params.source;
-  res.send(dataStore[source] || "");
+  res.send(dataStore[req.params.source] || "");
 });
 
 app.post('/api/data/:source', (req, res) => {
-  const source = req.params.source;
-  dataStore[source] = req.body.data;
+  dataStore[req.params.source] = req.body.data;
   res.send('OK');
 });
 
+// Start server
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
+// WebSocket setup
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
-    const parsedMessage = JSON.parse(message);
-    if (parsedMessage.source && parsedMessage.data) {
-      dataStore[parsedMessage.source] = parsedMessage.data;
-      wss.clients.forEach(client => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            source: parsedMessage.source,
-            data: parsedMessage.data
-          }));
-        }
-      });
+    const { source, data } = JSON.parse(message);
+    if (source && data) {
+      dataStore[source] = data;
+      broadcastData(source, data, ws);
     }
   });
 });
+
+function broadcastData(source, data, sender) {
+  wss.clients.forEach(client => {
+    if (client !== sender && client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ source, data }));
+    }
+  });
+}
