@@ -34,7 +34,21 @@ function Input({ value, onInputChange, onMessageReceived }) {
   };
 
   return (
-    <input value={value} onChange={handleInputChange} />
+    <div className='flex flex-col w-full h-full justify-center items-center'>
+      <div className='w-1/4'>
+        <label
+          className='font-bold'
+        >
+          Say something to your fellow NETZSCHE Exchanger!
+        </label>
+        <textarea
+          value={value}
+          onChange={handleInputChange}
+          className='w-full h-32 border border-neutral-950 rounded mt-1
+          px-1.5 resize-none'
+        />
+      </div>
+    </div>
   );
 }
 

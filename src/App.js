@@ -8,7 +8,9 @@ function App() {
   const [output, setOutput] = useState('');
 
   return (
-    <div className="App">
+    <div
+      className="flex flex-col items-center w-full h-full mt-20"
+    >
       <Input
         value={input}
         onInputChange={setInput}
