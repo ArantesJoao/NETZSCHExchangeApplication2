@@ -6,6 +6,7 @@ import Output from './components/Output'
 function App() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const [serverStatus, setServerStatus] = useState('up');
 
   return (
     <div
@@ -15,8 +16,10 @@ function App() {
         value={input}
         onInputChange={setInput}
         onMessageReceived={setOutput}
+        serverStatus={serverStatus}
+        onServerStatusChange={setServerStatus}
       />
-      <Output value={output} />
+      <Output value={output} serverStatus={serverStatus} />
     </div>
   );
 }
