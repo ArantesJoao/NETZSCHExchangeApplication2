@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div
-      className="flex flex-col items-center w-full h-full mt-20"
+      className="flex flex-col items-center w-full h-full"
     >
       <Input
         value={input}
